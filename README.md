@@ -7,8 +7,8 @@ A simple watchdog that detects Android ANR (Application Not Responding) error an
 Why it exists
 -------------
 
-There is currently no way for an android application to catch and report ANR error.
-If your application is not the play store (either because you are still developing it or because you are distributing it differently),
+There is currently no way for an android application to catch and report ANR errors.
+If your application is not in the play store (either because you are still developing it or because you are distributing it differently),
 the only way to investigate an ANR is to pull the file /data/anr/traces.txt and try to navigate your way in this enormous file.
 
 There is an [issue entry](https://code.google.com/p/android/issues/detail?id=35380) in the android bug tracker describing this lack, feel free to star it ;)

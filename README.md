@@ -45,18 +45,25 @@ How to use it
 
 2.  Put *ANRWatchDog.jar* in the libs/ directory of your project
 
-3.  In your application class, add an ANRWatchDog property:
+3.  In your application class, add an ANRWatchDog field:
 
-        public ANRWatchDog aaw = new ANRWatchDog();
+        public ANRWatchDog watchDog = new ANRWatchDog();
+
+    However, if you want to debug your app, then you probably want to use something like this:
+
+        if (BuildConfig.DEBUG == false) {
+            ANRWatchDog watchDog = new ANRWatchDog();
+            watchDog.start();
+        }
 
     Note that you can configure the watchdog interval (5000 miliseconds by default).
     For example, if you want to have a 10 seconds interval:
 
-        public ANRWatchDog aaw = new ANRWatchDog(10000);
+        public ANRWatchDog watchDog = new ANRWatchDog(10000);
 
 4.  In your application class, in *onCreate*, add:
 
-		aaw.start();
+		watchDog.start();
 
 5.  ***You're done***
 

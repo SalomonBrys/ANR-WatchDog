@@ -43,27 +43,23 @@ How to use it
 
 1.  [Download the jar](https://github.com/SalomonBrys/ANR-WatchDog/blob/master/ANRWatchDog.jar?raw=true)
 
-2.  Put *ANRWatchDog.jar* in the libs/ directory of your project
+2.  Put *ANRWatchDog.jar* in the `libs/` directory of your project
 
 3.  In your application class, add an ANRWatchDog field:
 
         public ANRWatchDog watchDog = new ANRWatchDog();
-
-    However, if you want to debug your app, then you probably want to use something like this:
-
-        if (BuildConfig.DEBUG == false) {
-            ANRWatchDog watchDog = new ANRWatchDog();
-            watchDog.start();
-        }
 
     Note that you can configure the watchdog interval (5000 miliseconds by default).
     For example, if you want to have a 10 seconds interval:
 
         public ANRWatchDog watchDog = new ANRWatchDog(10000);
 
-4.  In your application class, in *onCreate*, add:
+4.  In your application class, in `onCreate`, add:
 
-		watchDog.start();
+        if (BuildConfig.DEBUG == false)
+            watchDog.start();
+
+    This only enable the watchdog when not debugging. That's because the watchdog will prevent the Android java debugger from hanging execution at breakpoints or exceptions (it will detect the debugging pause as an ANR).
 
 5.  ***You're done***
 

@@ -68,12 +68,19 @@ public class ANRWatchDog extends Thread {
         }
     };
 
-    @SuppressWarnings("unused")
+    /**
+     * Constructs a watchdog that checks the ui thread every {@value #DEFAULT_ANR_TIMEOUT} milliseconds
+     */
     public ANRWatchDog() {
         this(DEFAULT_ANR_TIMEOUT);
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Constructs a watchdog that checks the ui thread every given interval
+     *
+     * @param timeoutInterval The interval, in milliseconds, between to checks of the UI thread.
+     *                        It is therefore the maximum time the UI may freeze before being reported as ANR.
+     */
     public ANRWatchDog(int timeoutInterval) {
         super();
         this.mTimeoutInterval = timeoutInterval;
@@ -83,6 +90,7 @@ public class ANRWatchDog extends Thread {
      * Sets an interface for when an ANR is detected.
      * If not set, the default behavior is to throw an error and crash the application.
      *
+     * @param listener The new listener or null
      * @return itself for chaining.
      */
     public ANRWatchDog setANRListener(ANRListener listener) {
@@ -99,6 +107,7 @@ public class ANRWatchDog extends Thread {
      * Sets an interface for when the watchdog thread is interrupted.
      * If not set, the default behavior is to just log the interruption message.
      *
+     * @param listener The new listener or null
      * @return itself for chaining.
      */
     public ANRWatchDog setInterruptionListener(InterruptionListener listener) {

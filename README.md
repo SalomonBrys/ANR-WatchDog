@@ -46,7 +46,7 @@ The watchdog is a simple thread does the following in a loop:
 How to use it
 -------------
 
-1.  [Download the jar](https://github.com/SalomonBrys/ANR-WatchDog/blob/master/ANRWatchDog.jar?raw=true)
+1.  [Download the jar](https://github.com/SalomonBrys/ANR-WatchDog/raw/master/target/anrwatchdog-1.0.jar)
 
 2.  Put *AnrWatchDog.jar* in the `libs/` directory of your project
 

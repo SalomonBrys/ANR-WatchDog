@@ -1,8 +1,11 @@
 package com.github.anrwatchdog;
 
 import android.os.Looper;
-import android.util.Log;
 
+/**
+ * Error thrown by {@link com.github.anrwatchdog.ANRWatchDog} when an ANR is detected.
+ * Contains the stack trace of the frozen UI thread.
+ */
 public class ANRError extends Error {
     private static final long serialVersionUID = 1L;
     public ANRError() {
@@ -10,11 +13,7 @@ public class ANRError extends Error {
     }
     @Override
     public Throwable fillInStackTrace() {
-
-        Log.e("ANRError", "Filling stack trace");
-
         setStackTrace(Looper.getMainLooper().getThread().getStackTrace());
-
         return this;
     }
 }

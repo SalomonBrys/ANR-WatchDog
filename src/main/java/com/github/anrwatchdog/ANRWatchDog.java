@@ -25,11 +25,10 @@ package com.github.anrwatchdog;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 /**
  * A watchdog timer thread that detects when the UI thread has frozen.
- *
- * Adapted from https://github.com/SalomonBrys/ANR-WatchDog.
  */
 public class ANRWatchDog extends Thread {
 
@@ -37,18 +36,34 @@ public class ANRWatchDog extends Thread {
         public void onAppNotResponding(ANRError error);
     }
 
+    public interface InterruptionListener {
+        public void onInterrupted(InterruptedException exception);
+    }
+
     private static final int DEFAULT_ANR_TIMEOUT = 5000;
 
-    private ANRListener mListener;
+    private static final ANRListener DEFAULT_ANR_LISTENER = new ANRListener() {
+        @Override public void onAppNotResponding(ANRError error) {
+            throw error;
+        }
+    };
+
+    private static final InterruptionListener DEFAULT_INTERRUPTION_LISTENER = new InterruptionListener() {
+        @Override public void onInterrupted(InterruptedException exception) {
+            Log.d("ANRWatchdog", "Interrupted: " + exception.getMessage());
+        }
+    };
+
+    private ANRListener mANRListener = DEFAULT_ANR_LISTENER;
+    private InterruptionListener mInterruptionListener = DEFAULT_INTERRUPTION_LISTENER;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final int mTimeoutInterval;
 
-    private int mTick = 0;
+    private volatile int mTick = 0;
 
     private final Runnable mTicker = new Runnable() {
-        @Override
-        public void run() {
+        @Override public void run() {
             mTick = (mTick + 1) % 10;
         }
     };
@@ -67,38 +82,56 @@ public class ANRWatchDog extends Thread {
     /**
      * Sets an interface for when an ANR is detected.
      * If not set, the default behavior is to throw an error and crash the application.
+     *
      * @return itself for chaining.
      */
-    public ANRWatchDog setListener(ANRListener listener) {
-        mListener = listener;
+    public ANRWatchDog setANRListener(ANRListener listener) {
+        if (listener == null) {
+            mANRListener = DEFAULT_ANR_LISTENER;
+        }
+        else {
+            mANRListener = listener;
+        }
         return this;
     }
 
-    @SuppressWarnings("InfiniteLoopStatement")
+    /**
+     * Sets an interface for when the watchdog thread is interrupted.
+     * If not set, the default behavior is to just log the interruption message.
+     *
+     * @return itself for chaining.
+     */
+    public ANRWatchDog setInterruptionListener(InterruptionListener listener) {
+        if (listener == null) {
+            mInterruptionListener = DEFAULT_INTERRUPTION_LISTENER;
+        }
+        else {
+            mInterruptionListener = listener;
+        }
+        return this;
+    }
+
     @Override
     public void run() {
-        setName("AnrWatchDog Thread");
+        setName("AnrWatchDog");
 
         int lastTick;
-        while (true) {
+        while (!isInterrupted()) {
             lastTick = mTick;
             mHandler.post(mTicker);
             try {
                 Thread.sleep(mTimeoutInterval);
-            }  catch (InterruptedException e) {
-                e.printStackTrace();
-                continue;
+            }
+            catch (InterruptedException e) {
+                mInterruptionListener.onInterrupted(e);
+                return ;
             }
 
             // If the main thread has not handled mTicker, it is blocked. ANR.
             if (mTick == lastTick) {
                 ANRError error = new ANRError();
-                if (mListener == null) {
-                    throw error;
-                } else {
-                    mListener.onAppNotResponding(error);
-                    return; // continuing will result in duplicate reports.
-                }
+                mANRListener.onAppNotResponding(error);
+                return ;
             }
         }
     }

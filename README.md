@@ -43,17 +43,17 @@ The watchdog is a simple thread does the following in a loop:
 4.  If the runnable has not been run, it means that the UI thread has been blocked for at least 5 seconds, raises an error with the UI thread stack trace
 
 
-How to use it
--------------
+How to use with Gradle / Android Studio
+---------------------------------------
 
-1.  [Download the jar](https://github.com/SalomonBrys/ANR-WatchDog/raw/master/target/anrwatchdog-1.0.jar)
+1.  In the `app/build.gradle` file, add
 
-2.  Put *AnrWatchDog.jar* in the `libs/` directory of your project
+        compile 'com.github.anrwatchdog:anrwatchdog:1.0'
 
-3.  In your application class, in `onCreate`, add:
+2.  In your application class, in `onCreate`, add:
 
 ```java
-    if (BuildConfig.DEBUG == false) {
+    if (!BuildConfig.DEBUG) {
         new ANRWatchDog().start();
     }
 ```
@@ -61,7 +61,13 @@ How to use it
  Note that this will not enable the watchdog in debug mode, because the watchdog will prevent the debugger
  from hanging execution at breakpoints or exceptions (it will detect the debugging pause as an ANR).
 
-***You're done***
+
+How to use with Eclipse
+-----------------------
+
+1.  [Download the jar](https://github.com/SalomonBrys/ANR-WatchDog/raw/master/target/anrwatchdog-1.0.jar)
+
+2.  Put *AnrWatchDog.jar* in the `libs/` directory of your project
 
 
 Advanced use

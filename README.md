@@ -99,4 +99,16 @@ Advanced use
     }
 ```
 
+Integration with Proguard (optional)
+------------------------------------
 
+Suppose you use Proguard to obfuscate your code. When you receive an ANR report, the stack trace will say something like this:
+
+* `com.a.a.a: Application Not Responding`
+
+You may find this harder to read. So you may want to add a Proguard exception for ANRWatchDog, by adding this to your `proguard-project.txt`:
+
+        -keep class com.github.anrwatchdog.** {*;}
+
+So now the stack trace will say this:
+* `com.github.anrwatchdog.ANRError: Application Not Responding`

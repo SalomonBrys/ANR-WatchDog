@@ -81,7 +81,7 @@ Advanced use
 
 ```java
     if (BuildConfig.DEBUG == false) {
-        new ANRWatchDog().setListener(new ANRWatchDog.ANRListener() {
+        new ANRWatchDog().setANRListener(new ANRWatchDog.ANRListener() {
             @Override
             public void onAppNotResponding(ANRError error) {
                 // Do something with the error. Here, we log it to HockeyApp:

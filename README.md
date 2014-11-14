@@ -48,7 +48,7 @@ How to use with Gradle / Android Studio
 
 1.  In the `app/build.gradle` file, add
 
-        compile 'com.github.anrwatchdog:anrwatchdog:1.0'
+        compile 'com.github.anrwatchdog:anrwatchdog:1.0.1'
 
 2.  In your application class, in `onCreate`, add:
 
@@ -65,7 +65,7 @@ How to use with Gradle / Android Studio
 How to use with Eclipse
 -----------------------
 
-1.  [Download the jar](https://github.com/SalomonBrys/ANR-WatchDog/raw/master/target/anrwatchdog-1.0.jar)
+1.  [Download the jar](https://github.com/SalomonBrys/ANR-WatchDog/raw/master/target/anrwatchdog-1.0.1.jar)
 
 2.  Put *AnrWatchDog.jar* in the `libs/` directory of your project
 

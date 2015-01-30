@@ -1,0 +1,91 @@
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group = "com.github.anrwatchdog"
+archivesBaseName = "anrwatchdog"
+version = "1.1.0"
+
+sourceCompatibility = 1.6
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main { compileClasspath += configurations.provided }
+}
+
+dependencies {
+    provided 'com.google.android:android:2.1.2'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'ANR-Watchdog'
+                packaging 'jar'
+                artifactId 'anrwatchdog'
+                description 'A simple watchdog that detects Android ANR (Application Not Responding) error and throws a meaningful exception'
+                url 'https://github.com/SalomonBrys/ANR-WatchDog'
+
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'http://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'salomonbrys'
+                        name 'Salomon BRYS'
+                        email 'salomon.brys@gmail.com'
+                    }
+                }
+
+                scm {
+                    url 'https://github.com/SalomonBrys/ANR-WatchDog'
+                    connection 'scm:git:https://github.com/SalomonBrys/ANR-WatchDog.git'
+                    developerConnection 'scm:git:git@github.com:SalomonBrys/ANR-WatchDog.git'
+                    tag 'HEAD'
+                }
+
+                issueManagement {
+                    system 'GitHub Issues'
+                    url 'https://github.com/SalomonBrys/ANR-WatchDog/issues'
+                }
+            }
+        }
+    }
+}

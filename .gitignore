@@ -13,6 +13,8 @@
 *~
 .DS_STORE
 
-# MAVEN
-target/*
-!target/anrwatchdog-*.jar
+# GRADLE
+.gradle
+/build/
+gradle.properties
+local.properties

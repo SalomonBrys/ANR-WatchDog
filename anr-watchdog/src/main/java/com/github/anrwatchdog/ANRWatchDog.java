@@ -3,7 +3,7 @@ package com.github.anrwatchdog;
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Salomon BRYS
+ * Copyright (c) 2015 Salomon BRYS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -30,6 +30,7 @@ import android.util.Log;
 /**
  * A watchdog timer thread that detects when the UI thread has frozen.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class ANRWatchDog extends Thread {
 
     public interface ANRListener {
@@ -50,21 +51,24 @@ public class ANRWatchDog extends Thread {
 
     private static final InterruptionListener DEFAULT_INTERRUPTION_LISTENER = new InterruptionListener() {
         @Override public void onInterrupted(InterruptedException exception) {
-            Log.d("ANRWatchdog", "Interrupted: " + exception.getMessage());
+            Log.w("ANRWatchdog", "Interrupted: " + exception.getMessage());
         }
     };
 
-    private ANRListener mANRListener = DEFAULT_ANR_LISTENER;
-    private InterruptionListener mInterruptionListener = DEFAULT_INTERRUPTION_LISTENER;
+    private ANRListener _anrListener = DEFAULT_ANR_LISTENER;
+    private InterruptionListener _interruptionListener = DEFAULT_INTERRUPTION_LISTENER;
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
-    private final int mTimeoutInterval;
+    private final Handler _uiHandler = new Handler(Looper.getMainLooper());
+    private final int _timeoutInterval;
 
-    private volatile int mTick = 0;
+    private String _namePrefix = "";
+    private boolean _logThreadsWithoutStackTrace = false;
 
-    private final Runnable mTicker = new Runnable() {
+    private volatile int _tick = 0;
+
+    private final Runnable _ticker = new Runnable() {
         @Override public void run() {
-            mTick = (mTick + 1) % 10;
+            _tick = (_tick + 1) % 10;
         }
     };
 
@@ -83,7 +87,7 @@ public class ANRWatchDog extends Thread {
      */
     public ANRWatchDog(int timeoutInterval) {
         super();
-        this.mTimeoutInterval = timeoutInterval;
+        _timeoutInterval = timeoutInterval;
     }
 
     /**
@@ -95,10 +99,10 @@ public class ANRWatchDog extends Thread {
      */
     public ANRWatchDog setANRListener(ANRListener listener) {
         if (listener == null) {
-            mANRListener = DEFAULT_ANR_LISTENER;
+            _anrListener = DEFAULT_ANR_LISTENER;
         }
         else {
-            mANRListener = listener;
+            _anrListener = listener;
         }
         return this;
     }
@@ -107,39 +111,71 @@ public class ANRWatchDog extends Thread {
      * Sets an interface for when the watchdog thread is interrupted.
      * If not set, the default behavior is to just log the interruption message.
      *
-     * @param listener The new listener or null
+     * @param listener The new listener or null.
      * @return itself for chaining.
      */
     public ANRWatchDog setInterruptionListener(InterruptionListener listener) {
         if (listener == null) {
-            mInterruptionListener = DEFAULT_INTERRUPTION_LISTENER;
+            _interruptionListener = DEFAULT_INTERRUPTION_LISTENER;
         }
         else {
-            mInterruptionListener = listener;
+            _interruptionListener = listener;
         }
         return this;
     }
 
+    /**
+     * Set the prefix that a thread's name must have for the thread to be reported.
+     * Note that the main thread is always reported.
+     *
+     * @param prefix The thread name's prefix for a thread to be reported.
+     * @return itself for chaining.
+     */
+    public ANRWatchDog setReportThreadNamePrefix(String prefix) {
+        if (prefix == null)
+            prefix = "";
+        _namePrefix = prefix;
+        return this;
+    }
+
+    /**
+     * Set that only the main thread will be reported.
+     *
+     * @return itself for chaining.
+     */
+    public ANRWatchDog setReportMainThreadOnly() {
+        _namePrefix = null;
+        return this;
+    }
+
+    public void setLogThreadsWithoutStackTrace(boolean logThreadsWithoutStackTrace) {
+        _logThreadsWithoutStackTrace = logThreadsWithoutStackTrace;
+    }
+
     @Override
     public void run() {
-        setName("AnrWatchDog");
+        setName("|ANR-WatchDog|");
 
         int lastTick;
         while (!isInterrupted()) {
-            lastTick = mTick;
-            mHandler.post(mTicker);
+            lastTick = _tick;
+            _uiHandler.post(_ticker);
             try {
-                Thread.sleep(mTimeoutInterval);
+                Thread.sleep(_timeoutInterval);
             }
             catch (InterruptedException e) {
-                mInterruptionListener.onInterrupted(e);
+                _interruptionListener.onInterrupted(e);
                 return ;
             }
 
-            // If the main thread has not handled mTicker, it is blocked. ANR.
-            if (mTick == lastTick) {
-                ANRError error = new ANRError();
-                mANRListener.onAppNotResponding(error);
+            // If the main thread has not handled _ticker, it is blocked. ANR.
+            if (_tick == lastTick) {
+                ANRError error;
+                if (_namePrefix != null)
+                    error = ANRError.New(_namePrefix, _logThreadsWithoutStackTrace);
+                else
+                    error = ANRError.NewMainOnly();
+                _anrListener.onAppNotResponding(error);
                 return ;
             }
         }

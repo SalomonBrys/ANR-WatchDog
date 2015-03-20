@@ -58,6 +58,7 @@ public class ANRError extends Error {
 
     @Override
     public Throwable fillInStackTrace() {
+        setStackTrace(new StackTraceElement[] {});
         return this;
     }
 

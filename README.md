@@ -7,8 +7,8 @@ A simple watchdog that detects Android ANRs (Application Not Responding).
 Why it exists
 -------------
 
-There is currently no way for an android application to catch and report ANR errors.
-If your application is not in the play store (either because you are still developing it or because you are distributing it differently), the only way to investigate an ANR is to pull the file /data/anr/traces.txt.
+There is currently no way for an android application to catch and report ANR errors.  
+If your application is not in the play store (either because you are still developing it or because you are distributing it differently), the only way to investigate an ANR is to pull the file /data/anr/traces.txt.  
 Additionally, we found that using the Play Store was not as effective as being able to choose our own bug tracking service.
 
 There is an [issue entry](https://code.google.com/p/android/issues/detail?id=35380) in the android bug tracker describing this lack, feel free to star it ;)
@@ -20,11 +20,19 @@ What it does
 It sets up a watchdog timer that will detect when the UI thread stops responding. When it does, it raises an error with all threads stack stack traces (main first).
 
 
-Can it work with crash reporters like [ACRA](https://github.com/ACRA/acra) ?
-----------------------------------------------------------------------------
+Can it work with crash reporters?
+---------------------------------
 
-Yes! I'm glad you asked: That's the reason why it was developed in the first place!
+Yes! I'm glad you asked: That's the reason why it was developed in the first place!  
 As this throws an error, a crash handler can intercept it and handle it the way it needs.
+
+Known working crash reporters include:
+
+ * [ACRA](https://github.com/ACRA/acra)
+ * [Crashlytics](https://get.fabric.io/crashlytics)
+ * [HokeyApp](http://hockeyapp.net/)
+
+And there is no reason why it should not work with *[insert your favourite crash reporting system here]*.
 
 
 How it works
@@ -59,7 +67,7 @@ How to use with Gradle / Android Studio
 How to use with Eclipse
 -----------------------
 
-1.  [Download the jar](https://github.com/SalomonBrys/ANR-WatchDog/raw/master/anr-watchdog/build/libs/anr-watchdog-1.1.0.jar)
+1.  [Download the latest jar](https://search.maven.org/remote_content?g=com.github.anrwatchdog&a=anrwatchdog&v=LATEST)
 
 2.  Put the jar in the `libs/` directory of your project
 
@@ -88,8 +96,10 @@ Here is a dead lock example:
 	        at testapp.MainActivity.access$100(MainActivity.java:12)
 	        at testapp.MainActivity$LockerThread.run(MainActivity.java:36)
 
-From this report, we can see that the stack traces of two threads. The first (the "main" thread) is stuck at `MainActivity.java:46` while the second thread (named "App: Locker") is locked in a Sleep at `MainActivity.java:18`.
-	From there, if we looked at those two lines, we would surely understand the cause of the dead lock!
+From this report, we can see that the stack traces of two threads. The first (the "main" thread) is stuck at `MainActivity.java:46` while the second thread (named "App: Locker") is locked in a Sleep at `MainActivity.java:18`.  
+From there, if we looked at those two lines, we would surely understand the cause of the dead lock!
+
+Note that some crash reporting library (such as Crashlytics) report all thread stack traces at the time of an uncaught exception. In that case, having all threads in the same exception can be cumbersome. In such cases, simply use `setReportMainThreadOnly()`.
 
 
 Advanced use

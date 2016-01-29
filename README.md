@@ -1,5 +1,6 @@
 ANR-WatchDog
 ============
+[![Badge](http://www.libtastic.com/static/osbadges/54.png)](http://www.libtastic.com/technology/54/)
 
 A simple watchdog that detects Android ANRs (Application Not Responding).
 

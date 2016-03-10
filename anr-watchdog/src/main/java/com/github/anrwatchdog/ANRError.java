@@ -2,6 +2,7 @@ package com.github.anrwatchdog;
 
 import android.os.Looper;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ import java.util.TreeMap;
 @SuppressWarnings({"Convert2Diamond", "UnusedDeclaration"})
 public class ANRError extends Error {
 
-    private static class $ {
+    private static class $ implements Serializable {
         private final String _name;
         private final StackTraceElement[] _stackTrace;
 
@@ -42,18 +43,8 @@ public class ANRError extends Error {
 
     private static final long serialVersionUID = 1L;
 
-    private final Map<Thread, StackTraceElement[]> _stackTraces;
-
-    private ANRError($._Thread st, Map<Thread, StackTraceElement[]> stackTraces) {
+    private ANRError($._Thread st) {
         super("Application Not Responding", st);
-        _stackTraces = stackTraces;
-    }
-
-    /**
-     * @return all the reported threads and stack traces.
-     */
-    public Map<Thread, StackTraceElement[]> getStackTraces() {
-        return _stackTraces;
     }
 
     @Override
@@ -66,7 +57,8 @@ public class ANRError extends Error {
         final Thread mainThread = Looper.getMainLooper().getThread();
 
         final Map<Thread, StackTraceElement[]> stackTraces = new TreeMap<Thread, StackTraceElement[]>(new Comparator<Thread>() {
-            @Override public int compare(Thread lhs, Thread rhs) {
+            @Override
+            public int compare(Thread lhs, Thread rhs) {
                 if (lhs == rhs)
                     return 0;
                 if (lhs == mainThread)
@@ -95,16 +87,13 @@ public class ANRError extends Error {
         for (Map.Entry<Thread, StackTraceElement[]> entry : stackTraces.entrySet())
             tst = new $(entry.getKey().getName(), entry.getValue()).new _Thread(tst);
 
-        return new ANRError(tst, stackTraces);
+        return new ANRError(tst);
     }
 
     static ANRError NewMainOnly() {
         final Thread mainThread = Looper.getMainLooper().getThread();
         final StackTraceElement[] mainStackTrace = mainThread.getStackTrace();
 
-        final HashMap<Thread, StackTraceElement[]> stackTraces = new HashMap<Thread, StackTraceElement[]>(1);
-        stackTraces.put(mainThread, mainStackTrace);
-
-        return new ANRError(new $(mainThread.getName(), mainStackTrace).new _Thread(null), stackTraces);
+        return new ANRError(new $(mainThread.getName(), mainStackTrace).new _Thread(null));
     }
 }

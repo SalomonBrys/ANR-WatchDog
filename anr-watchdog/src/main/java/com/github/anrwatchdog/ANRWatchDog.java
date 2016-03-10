@@ -3,7 +3,7 @@ package com.github.anrwatchdog;
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Salomon BRYS
+ * Copyright (c) 2016 Salomon BRYS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -148,8 +148,17 @@ public class ANRWatchDog extends Thread {
         return this;
     }
 
-    public void setLogThreadsWithoutStackTrace(boolean logThreadsWithoutStackTrace) {
+    /**
+     * Set that all running threads will be reported,
+     * even those from which no stack trace could be extracted.
+     * Default false.
+     *
+     * @param logThreadsWithoutStackTrace Whether or not all running threads should be reported
+     * @return itself for chaining.
+     */
+    public ANRWatchDog setLogThreadsWithoutStackTrace(boolean logThreadsWithoutStackTrace) {
         _logThreadsWithoutStackTrace = logThreadsWithoutStackTrace;
+        return this;
     }
 
     @Override

@@ -51,17 +51,13 @@ How to use with Gradle / Android Studio
 
 1.  In the `app/build.gradle` file, add
 
-		compile 'com.github.anrwatchdog:anrwatchdog:1.1.+'
+		compile 'com.github.anrwatchdog:anrwatchdog:1.2.+'
 
 2.  In your application class, in `onCreate`, add:
 
 	```java
-	if (!BuildConfig.DEBUG) {
-		new ANRWatchDog().start();
-	}
+    new ANRWatchDog().start();
 	```
-
-	Note that this will not enable the watchdog in debug mode, because the watchdog will prevent the debugger from hanging execution at breakpoints or exceptions (it will detect the debugging pause as an ANR).
 
 
 How to use with Eclipse
@@ -108,7 +104,7 @@ Advanced use
 
 #### ANRWatchdog work
 
-*  ANRWatchDog is a thread, so you can interrupt it at any time.
+* ANRWatchDog is a thread, so you can interrupt it at any time.
 
 * To set a different timeout (5000 millis is the default):
 
@@ -118,7 +114,17 @@ Advanced use
 	}
 	```
 
-*  If you are programming with Android's multi process capability (like starting an activity in a new process), remember that you will need an ANRWatchDog thread per process.
+* If you are programming with Android's multi process capability (like starting an activity in a new process), remember that you will need an ANRWatchDog thread per process.
+
+
+#### ANRWatchdog and the debugger
+
+* By default, the watchdog will ignore ANRs if the debugger is attached. This is because it detects execution pauses and breakpoints as ANRs.
+To disable this and throw an `ANRError` even if the debugger is connected, you can add `setIgnoreDebugger(true)`:
+
+    ```java
+    new ANRWatchDog().setIgnoreDebugger(true).start();
+    ```
 
 
 #### On ANR callback

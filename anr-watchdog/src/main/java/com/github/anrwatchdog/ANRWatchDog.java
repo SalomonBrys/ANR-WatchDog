@@ -23,6 +23,7 @@ package com.github.anrwatchdog;
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -63,12 +64,13 @@ public class ANRWatchDog extends Thread {
 
     private String _namePrefix = "";
     private boolean _logThreadsWithoutStackTrace = false;
+    private boolean _ignoreDebugger = false;
 
     private volatile int _tick = 0;
 
     private final Runnable _ticker = new Runnable() {
         @Override public void run() {
-            _tick = (_tick + 1) % 10;
+            _tick = (_tick + 1) % Integer.MAX_VALUE;
         }
     };
 
@@ -127,6 +129,7 @@ public class ANRWatchDog extends Thread {
     /**
      * Set the prefix that a thread's name must have for the thread to be reported.
      * Note that the main thread is always reported.
+     * Default "".
      *
      * @param prefix The thread name's prefix for a thread to be reported.
      * @return itself for chaining.
@@ -161,11 +164,26 @@ public class ANRWatchDog extends Thread {
         return this;
     }
 
+    /**
+     * Set whether to ignore the debugger when detecting ANRs.
+     * When ignoring the debugger, ANRWatchdog will detect ANRs even if the debugger is connected.
+     * By default, it does not, to avoid interpreting debugging pauses as ANRs.
+     * Default false.
+     *
+     * @param ignoreDebugger Whether to ignore the debugger.
+     * @return itself for chaining.
+     */
+    public ANRWatchDog setIgnoreDebugger(boolean ignoreDebugger) {
+        _ignoreDebugger = ignoreDebugger;
+        return this;
+    }
+
     @Override
     public void run() {
         setName("|ANR-WatchDog|");
 
         int lastTick;
+        int lastIgnored = -1;
         while (!isInterrupted()) {
             lastTick = _tick;
             _uiHandler.post(_ticker);
@@ -179,13 +197,20 @@ public class ANRWatchDog extends Thread {
 
             // If the main thread has not handled _ticker, it is blocked. ANR.
             if (_tick == lastTick) {
+                if (!_ignoreDebugger && Debug.isDebuggerConnected()) {
+                    if (_tick != lastIgnored)
+                        Log.w("ANRWatchdog", "An ANR was detected but ignored because the debugger is connected (you can prevent this with setIgnoreDebugger(true))");
+                    lastIgnored = _tick;
+                    continue ;
+                }
+
                 ANRError error;
                 if (_namePrefix != null)
                     error = ANRError.New(_namePrefix, _logThreadsWithoutStackTrace);
                 else
                     error = ANRError.NewMainOnly();
                 _anrListener.onAppNotResponding(error);
-                return ;
+                return;
             }
         }
     }

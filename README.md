@@ -1,6 +1,11 @@
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.anrwatchdog/anrwatchdog.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.anrwatchdog%22)
+[![MIT License](https://img.shields.io/github/license/salomonbrys/ANR-WatchDog.svg)](https://github.com/SalomonBrys/ANR-WatchDog/blob/master/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/SalomonBrys/ANR-WatchDog.svg)](https://github.com/SalomonBrys/ANR-WatchDog/issues)
+
 ANR-WatchDog
 ============
-[![Badge](http://www.libtastic.com/static/osbadges/54.png)](http://www.libtastic.com/technology/54/)
+
+[![Libtastic](http://www.libtastic.com/static/osbadges/54.png)](http://www.libtastic.com/technology/54/)
 
 A simple watchdog that detects Android ANRs (Application Not Responding).
 

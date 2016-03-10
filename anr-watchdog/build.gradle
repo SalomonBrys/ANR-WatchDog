@@ -4,8 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = "com.github.anrwatchdog"
-archivesBaseName = "anrwatchdog"
-version = "1.1.1"
+version = "1.2.0"
 
 sourceCompatibility = 1.6
 
@@ -29,10 +28,7 @@ signing {
 
 configurations {
     provided
-}
-
-sourceSets {
-    main { compileClasspath += configurations.provided }
+    compile.extendsFrom provided
 }
 
 dependencies {

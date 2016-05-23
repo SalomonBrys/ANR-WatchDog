@@ -1,6 +1,9 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.anrwatchdog/anrwatchdog.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.anrwatchdog%22)
 [![MIT License](https://img.shields.io/github/license/salomonbrys/ANR-WatchDog.svg)](https://github.com/SalomonBrys/ANR-WatchDog/blob/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/SalomonBrys/ANR-WatchDog.svg)](https://github.com/SalomonBrys/ANR-WatchDog/issues)
+[![Donate](https://img.shields.io/badge/Backing-Donate-orange.svg)](https://donorbox.org/donation-salomonbrys/)
+
+
 
 ANR-WatchDog
 ============
@@ -8,6 +11,29 @@ ANR-WatchDog
 [![Libtastic](http://www.libtastic.com/static/osbadges/54.png)](http://www.libtastic.com/technology/54/)
 
 A simple watchdog that detects Android ANRs (Application Not Responding).
+
+
+Table of contents
+-----------------
+
+  * [ANR-WatchDog](#anr-watchdog)
+    * [Table of contents](#table-of-contents)
+    * [Why it exists](#why-it-exists)
+    * [What it does](#what-it-does)
+    * [Can it work with crash reporters?](#can-it-work-with-crash-reporters)
+    * [How it works](#how-it-works)
+  * [Usage](#usage)
+    * [Install](#install)
+      * [With Gradle / Android Studio](#with-gradle--android-studio)
+      * [With Eclipse](#with-eclipse)
+    * [Reading the ANRError exception report](#reading-the-anrerror-exception-report)
+    * [Configuration](#configuration)
+      * [Timeout (minimum hanging time for an ANR)](#timeout-minimum-hanging-time-for-an-anr)
+      * [Debugger](#debugger)
+      * [On ANR callback](#on-anr-callback)
+      * [Filtering reports](#filtering-reports)
+      * [Watchdog thread](#watchdog-thread)
+  * [Donate](#donate)
 
 
 Why it exists
@@ -52,8 +78,15 @@ The watchdog is a simple thread that does the following in a loop:
 4.  If the runnable has not been run, which means that the UI thread has been blocked for at least 5 seconds, it raises an error with all running threads stack traces.
 
 
-How to use with Gradle / Android Studio
----------------------------------------
+
+Usage
+=====
+
+
+Install
+-------
+
+### With Gradle / Android Studio
 
 1.  In the `app/build.gradle` file, add:
 
@@ -68,8 +101,7 @@ How to use with Gradle / Android Studio
     ```
 
 
-How to use with Eclipse
------------------------
+### With Eclipse
 
 1. [Download the latest jar](https://search.maven.org/remote_content?g=com.github.anrwatchdog&a=anrwatchdog&v=LATEST)
 
@@ -110,7 +142,7 @@ Configuration
 -------------
 
 
-#### Timeout (minimum hanging time for an ANR)
+### Timeout (minimum hanging time for an ANR)
 
 * To set a different timeout (5000 millis is the default):
 
@@ -121,7 +153,7 @@ Configuration
     ```
 
 
-#### Debugger
+### Debugger
 
 * By default, the watchdog will ignore ANRs if the debugger is attached. This is because it detects execution pauses and breakpoints as ANRs.
 To disable this and throw an `ANRError` even if the debugger is connected, you can add `setIgnoreDebugger(true)`:
@@ -131,7 +163,7 @@ To disable this and throw an `ANRError` even if the debugger is connected, you c
     ```
 
 
-#### On ANR callback
+### On ANR callback
 
 * If you would prefer not to crash the application when an ANR is detected, you can enable a callback instead:
 
@@ -147,7 +179,7 @@ To disable this and throw an `ANRError` even if the debugger is connected, you c
 
     **This is very important when delivering your app in production.** When in the hand of the final user, it's *probably better* not to crash after 5 seconds, but simply report the ANR to whatever reporting system you use. Maybe, after some more seconds, the app will "de-freeze".
 
-#### Filtering reports
+### Filtering reports
 
 * If you would like to have only your own threads to be reported in the ANRError, and not all threads (including system threads such as the `FinalizerDaemon` thread), you can set a prefix: only the threads whose name starts with this prefix will be reported.
 
@@ -174,8 +206,19 @@ To disable this and throw an `ANRError` even if the debugger is connected, you c
     ```
 
 
-#### Watchdog thread
+### Watchdog thread
 
 * ANRWatchDog is a thread, so you can interrupt it at any time.
 
 * If you are programming with Android's multi process capability (like starting an activity in a new process), remember that you will need an ANRWatchDog thread per process.
+
+
+
+Donate
+======
+
+ANR-Watchdog is free to use for both non-profit and commercial use and always will be.
+
+If you wish to show some support or appreciation to my work, you are free to **[donate](https://donorbox.org/donation-salomonbrys)**!
+
+This would be (of course) greatly appreciated but is by no means necessary to receive help or support, which I'll be happy to provide for free :)

@@ -83,6 +83,11 @@ public class ANRError extends Error {
                 )
                 stackTraces.put(entry.getKey(), entry.getValue());
 
+        // Sometimes main is not returned in getAllStackTraces() - ensure that we list it
+        if (!stackTraces.containsKey(mainThread)) {
+            stackTraces.put(mainThread, mainThread.getStackTrace());
+        }
+
         $._Thread tst = null;
         for (Map.Entry<Thread, StackTraceElement[]> entry : stackTraces.entrySet())
             tst = new $(entry.getKey().getName(), entry.getValue()).new _Thread(tst);

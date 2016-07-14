@@ -90,7 +90,7 @@ public class ANRError extends Error {
 
         $._Thread tst = null;
         for (Map.Entry<Thread, StackTraceElement[]> entry : stackTraces.entrySet())
-            tst = new $(entry.getKey().getName(), entry.getValue()).new _Thread(tst);
+            tst = new $(getThreadTitle(entry.getKey()), entry.getValue()).new _Thread(tst);
 
         return new ANRError(tst);
     }
@@ -99,6 +99,10 @@ public class ANRError extends Error {
         final Thread mainThread = Looper.getMainLooper().getThread();
         final StackTraceElement[] mainStackTrace = mainThread.getStackTrace();
 
-        return new ANRError(new $(mainThread.getName(), mainStackTrace).new _Thread(null));
+        return new ANRError(new $(getThreadTitle(mainThread), mainStackTrace).new _Thread(null));
+    }
+
+    private static String getThreadTitle(Thread thread) {
+        return thread.getName() + " (state = " + thread.getState() + ")";
     }
 }

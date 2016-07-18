@@ -90,9 +90,16 @@ Install
 
 1.  In the `app/build.gradle` file, add:
 
-    ```java
+    ```
     compile 'com.github.anrwatchdog:anrwatchdog:1.2.+'
     ```
+
+    Alternatively, if you want to avoid the warning in Android Studio, use this format (note that you will not automatically receive fixes):
+
+    ```
+    compile 'com.github.anrwatchdog:anrwatchdog:1.2.1'
+    ```
+
 
 2.  In your application class, in `onCreate`, add:
 

@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = "com.github.anrwatchdog"
-version = "1.2.0"
+version = "1.2.1"
 
 sourceCompatibility = 1.6
 

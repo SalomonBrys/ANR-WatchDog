@@ -90,17 +90,17 @@ Install
 
 1.  In the `app/build.gradle` file, add:
 
-    ```java
-    compile 'com.github.anrwatchdog:anrwatchdog:1.2.+'
+    ```
+    compile 'com.github.anrwatchdog:anrwatchdog:1.3.+'
     ```
 
-2.  Alternatively, if you want to avoid the warning in Android Studio, use this format:
+    Alternatively, if you want to avoid the warning in Android Studio, use this format (note that you will not automatically receive fixes):
 
-    ```java
-    compile 'com.github.anrwatchdog:anrwatchdog:1.2.0'
+    ```
+    compile 'com.github.anrwatchdog:anrwatchdog:1.3.0'
     ```
 
-3.  In your application class, in `onCreate`, add:
+2.  In your application class, in `onCreate`, add:
 
     ```java
     new ANRWatchDog().start();
@@ -124,13 +124,13 @@ Here is a dead lock example:
     FATAL EXCEPTION: |ANR-WatchDog|
         Process: anrwatchdog.github.com.testapp, PID: 26737
         com.github.anrwatchdog.ANRError: Application Not Responding
-        Caused by: com.github.anrwatchdog.ANRError$_$_Thread: main
+        Caused by: com.github.anrwatchdog.ANRError$_$_Thread: main (state = WAITING)
             at testapp.MainActivity$1.run(MainActivity.java:46)
             at android.os.Handler.handleCallback(Handler.java:739)
             at android.os.Handler.dispatchMessage(Handler.java:95)
             at android.os.Looper.loop(Looper.java:135)
             at android.app.ActivityThread.main(ActivityThread.java:5221)
-        Caused by: com.github.anrwatchdog.ANRError$_$_Thread: APP: Locker
+        Caused by: com.github.anrwatchdog.ANRError$_$_Thread: APP: Locker (state = TIMED_WAITING)
             at java.lang.Thread.sleep(Native Method)
             at java.lang.Thread.sleep(Thread.java:1031)
             at java.lang.Thread.sleep(Thread.java:985)

@@ -94,7 +94,13 @@ Install
     compile 'com.github.anrwatchdog:anrwatchdog:1.2.+'
     ```
 
-2.  In your application class, in `onCreate`, add:
+2.  Alternatively, if you want to avoid the warning in Android Studio, use this format:
+
+    ```java
+    compile 'com.github.anrwatchdog:anrwatchdog:1.2.0'
+    ```
+
+3.  In your application class, in `onCreate`, add:
 
     ```java
     new ANRWatchDog().start();

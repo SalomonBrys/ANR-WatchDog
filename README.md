@@ -7,6 +7,7 @@
 
 ANR-WatchDog
 ============
+[![Badge](http://www.libtastic.com/static/osbadges/54.png)](http://www.libtastic.com/technology/54/)
 
 [![Libtastic](http://www.libtastic.com/static/osbadges/54.png)](http://www.libtastic.com/technology/54/)
 

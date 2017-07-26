@@ -62,7 +62,7 @@ Known working crash reporters include:
 
  * [ACRA](https://github.com/ACRA/acra)
  * [Crashlytics](https://get.fabric.io/crashlytics)
- * [HokeyApp](http://hockeyapp.net/)
+ * [HockeyApp](http://hockeyapp.net/)
 
 And there is no reason why it should not work with *[insert your favourite crash reporting system here]*.
 

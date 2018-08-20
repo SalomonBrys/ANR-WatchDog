@@ -34,8 +34,12 @@ import android.util.Log;
 @SuppressWarnings("UnusedDeclaration")
 public class ANRWatchDog extends Thread {
 
+    private int cost;
+    private boolean isAnr;
+
     public interface ANRListener {
         public void onAppNotResponding(ANRError error);
+        public void onAppNotResponding(boolean isAnr,int cost, ANRError error);
     }
 
     public interface InterruptionListener {
@@ -47,6 +51,9 @@ public class ANRWatchDog extends Thread {
     private static final ANRListener DEFAULT_ANR_LISTENER = new ANRListener() {
         @Override public void onAppNotResponding(ANRError error) {
             throw error;
+        }
+        @Override
+        public void onAppNotResponding(boolean isAnr, int cost, ANRError error) {
         }
     };
 
@@ -61,6 +68,9 @@ public class ANRWatchDog extends Thread {
 
     private final Handler _uiHandler = new Handler(Looper.getMainLooper());
     private final int _timeoutInterval;
+    private int _anrTimeoutInterval;
+    private int _blockTimeoutInterval;
+    private int timeOut;
 
     private String _namePrefix = "";
     private boolean _logThreadsWithoutStackTrace = false;
@@ -91,6 +101,13 @@ public class ANRWatchDog extends Thread {
         super();
         _timeoutInterval = timeoutInterval;
     }
+
+    public ANRWatchDog(int blockTimeoutIntercval, int anrTimeoutInterval){
+        super();
+        _blockTimeoutInterval = blockTimeoutIntercval;
+        _anrTimeoutInterval = anrTimeoutInterval;
+    }
+
 
     /**
      * Sets an interface for when an ANR is detected.
@@ -188,7 +205,16 @@ public class ANRWatchDog extends Thread {
             lastTick = _tick;
             _uiHandler.post(_ticker);
             try {
-                Thread.sleep(_timeoutInterval);
+                if (_blockTimeoutInterval!=0){
+                    Thread.sleep(_blockTimeoutInterval);
+                    timeOut += _blockTimeoutInterval;
+                    if (timeOut>=_anrTimeoutInterval){
+                        isAnr = true;
+                    }
+                    cost = timeOut;
+                } else {
+                    Thread.sleep(_timeoutInterval);
+                }
             }
             catch (InterruptedException e) {
                 _interruptionListener.onInterrupted(e);
@@ -209,7 +235,11 @@ public class ANRWatchDog extends Thread {
                     error = ANRError.New(_namePrefix, _logThreadsWithoutStackTrace);
                 else
                     error = ANRError.NewMainOnly();
-                _anrListener.onAppNotResponding(error);
+                if (_blockTimeoutInterval != 0 || _anrTimeoutInterval != 0){
+                    _anrListener.onAppNotResponding(isAnr, cost, error);
+                } else {
+                    _anrListener.onAppNotResponding(error);
+                }
                 return;
             }
         }

@@ -106,6 +106,12 @@ Install
     new ANRWatchDog().start();
     ```
 
+    or decide your special way to deal `anr/block` error info
+    ```java
+    new ANRWatchDog(500,5000).setANRListener(new BlockCallback());
+    ```
+
+
 
 ### With Eclipse
 
@@ -174,13 +180,29 @@ To disable this and throw an `ANRError` even if the debugger is connected, you c
 * If you would prefer not to crash the application when an ANR is detected, you can enable a callback instead:
 
     ```java
-    new ANRWatchDog().setANRListener(new ANRWatchDog.ANRListener() {
+    // implements ANRListener to deal with anr/block error info. 
+    public class BlockCallback implements ANRWatchDog.ANRListener {
+
         @Override
         public void onAppNotResponding(ANRError error) {
             // Handle the error. For example, log it to HockeyApp:
             ExceptionHandler.saveException(error, new CrashManager());
         }
-    }).start();
+        
+        @Override
+        public void onAppNotResponding(boolean isAnr, int cost, ANRError error) {
+            String type;
+            if (isAnr){
+                type = "anr";
+            }else {
+                type = "block";
+            }
+            Log.e("\nBlockReport", "type: " + type
+                    + "\nblock cost: " + cost + "ms"
+                    + "\nblock cause: "
+                    + Arrays.toString(error.getCause().getStackTrace()));
+        }
+    }
     ```
 
     **This is very important when delivering your app in production.** When in the hand of the final user, it's *probably better* not to crash after 5 seconds, but simply report the ANR to whatever reporting system you use. Maybe, after some more seconds, the app will "de-freeze".

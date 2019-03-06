@@ -197,7 +197,7 @@ public class ANRWatchDog extends Thread {
 
             // If the main thread has not handled _ticker, it is blocked. ANR.
             if (_tick == lastTick) {
-                if (!_ignoreDebugger && Debug.isDebuggerConnected()) {
+                if (!_ignoreDebugger && Debug.isDebuggerConnected() || Debug.waitingForDebugger()) {
                     if (_tick != lastIgnored)
                         Log.w("ANRWatchdog", "An ANR was detected but ignored because the debugger is connected (you can prevent this with setIgnoreDebugger(true))");
                     lastIgnored = _tick;

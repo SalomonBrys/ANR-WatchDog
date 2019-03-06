@@ -11,98 +11,123 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="76dp"
         android:layout_height="76dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/threadSleepAll"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/minAnrDurationLabel"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <Button
-        android:id="@+id/threadSleepAll"
-        android:layout_width="0dp"
+    <TextView
+        android:id="@+id/minAnrDurationLabel"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:padding="20dp"
-        android:text="@string/threadsleep_all"
-        app:layout_constraintBottom_toTopOf="@+id/threadSleepMain"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/min_anr_duration"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        app:layout_constraintBottom_toTopOf="@+id/reportModeLabel"
+        app:layout_constraintEnd_toStartOf="@+id/minAnrDuration"
         app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
-
     <Button
-        android:id="@+id/threadSleepMain"
-        android:layout_width="0dp"
+        android:id="@+id/minAnrDuration"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:padding="20dp"
-        android:text="@string/threadsleep_main"
-        app:layout_constraintBottom_toTopOf="@+id/infiniteLoopMain"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/minAnrDurationLabel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/threadSleepAll" />
+        app:layout_constraintStart_toEndOf="@+id/minAnrDurationLabel"
+        app:layout_constraintTop_toTopOf="@+id/minAnrDurationLabel"
+        tools:text="2 Seconds" />
+
+    <TextView
+        android:id="@+id/reportModeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/report_mode"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        app:layout_constraintBottom_toTopOf="@+id/behaviourLabel"
+        app:layout_constraintEnd_toEndOf="@+id/minAnrDurationLabel"
+        app:layout_constraintTop_toBottomOf="@+id/minAnrDurationLabel" />
 
     <Button
-        android:id="@+id/infiniteLoopMain"
+        android:id="@+id/reportMode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/reportModeLabel"
+        app:layout_constraintEnd_toEndOf="@+id/minAnrDuration"
+        app:layout_constraintStart_toStartOf="@+id/minAnrDuration"
+        app:layout_constraintTop_toTopOf="@+id/reportModeLabel"
+        tools:text="All threads" />
+
+    <TextView
+        android:id="@+id/behaviourLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/behaviour"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        app:layout_constraintBottom_toTopOf="@+id/threadSleep"
+        app:layout_constraintEnd_toEndOf="@+id/reportModeLabel"
+        app:layout_constraintTop_toBottomOf="@+id/reportModeLabel" />
+
+    <Button
+        android:id="@+id/behaviour"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/behaviourLabel"
+        app:layout_constraintEnd_toEndOf="@+id/reportMode"
+        app:layout_constraintStart_toStartOf="@+id/reportMode"
+        app:layout_constraintTop_toTopOf="@+id/behaviourLabel"
+        tools:text="Crash" />
+
+    <Button
+        android:id="@+id/threadSleep"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginLeft="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
         android:padding="20dp"
-        android:text="@string/infiniteloop_main"
+        android:text="@string/threadsleep"
+        app:layout_constraintBottom_toTopOf="@+id/infiniteLoop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/behaviourLabel" />
+
+
+    <Button
+        android:id="@+id/infiniteLoop"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="@string/infiniteloop"
         app:layout_constraintBottom_toTopOf="@+id/deadlock"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/threadSleepMain" />
+        app:layout_constraintEnd_toEndOf="@+id/threadSleep"
+        app:layout_constraintStart_toStartOf="@+id/threadSleep"
+        app:layout_constraintTop_toBottomOf="@+id/threadSleep" />
 
     <Button
         android:id="@+id/deadlock"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
+        android:layout_marginBottom="24dp"
         android:padding="20dp"
-        android:text="@string/deadlock_all"
-        app:layout_constraintBottom_toTopOf="@+id/filtered"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/infiniteLoopMain" />
-
-    <Button
-        android:id="@+id/filtered"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginBottom="64dp"
-        android:padding="20dp"
-        android:text="@string/deadlock_filtered"
+        android:text="@string/deadlock"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/deadlock" />
+        app:layout_constraintEnd_toEndOf="@+id/infiniteLoop"
+        app:layout_constraintStart_toStartOf="@+id/infiniteLoop"
+        app:layout_constraintTop_toBottomOf="@+id/infiniteLoop" />
 
 
 </android.support.constraint.ConstraintLayout>

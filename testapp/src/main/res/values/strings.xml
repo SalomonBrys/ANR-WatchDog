@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ANR-Watchdog Demo</string>
-    <string name="threadsleep_all">Thread sleep w/ all threads</string>
-    <string name="threadsleep_main">Thread sleep w/ only main</string>
-    <string name="infiniteloop_main">Infinite loop w/ only main</string>
-    <string name="deadlock_all">Dead lock w/ all threads</string>
-    <string name="deadlock_filtered">Dead lock w/ filtered report</string>
+    <string name="threadsleep">Thread sleep</string>
+    <string name="infiniteloop">Infinite loop</string>
+    <string name="deadlock">Dead lock</string>
+    <string name="min_anr_duration">Min ANR duration:</string>
+    <string name="report_mode">Report mode:</string>
+    <string name="filter_report">Filter report:</string>
+    <string name="behaviour">Behaviour:</string>
 </resources>

@@ -4,7 +4,6 @@
 [![Donate](https://img.shields.io/badge/Backing-Donate-orange.svg)](https://donorbox.org/donation-salomonbrys/)
 
 
-
 ANR-WatchDog
 ============
 
@@ -79,10 +78,8 @@ The watchdog is a simple thread that does the following in a loop:
 4.  If the runnable has not been run, which means that the UI thread has been blocked for at least 5 seconds, it raises an error with all running threads stack traces.
 
 
-
 Usage
 =====
-
 
 Install
 -------
@@ -122,22 +119,24 @@ The `ANRError` stack trace is a bit particular, it has the stack traces of all t
 
 Here is a dead lock example:
 
-    FATAL EXCEPTION: |ANR-WatchDog|
-        Process: anrwatchdog.github.com.testapp, PID: 26737
-        com.github.anrwatchdog.ANRError: Application Not Responding
-        Caused by: com.github.anrwatchdog.ANRError$_$_Thread: main (state = WAITING)
-            at testapp.MainActivity$1.run(MainActivity.java:46)
-            at android.os.Handler.handleCallback(Handler.java:739)
-            at android.os.Handler.dispatchMessage(Handler.java:95)
-            at android.os.Looper.loop(Looper.java:135)
-            at android.app.ActivityThread.main(ActivityThread.java:5221)
-        Caused by: com.github.anrwatchdog.ANRError$_$_Thread: APP: Locker (state = TIMED_WAITING)
-            at java.lang.Thread.sleep(Native Method)
-            at java.lang.Thread.sleep(Thread.java:1031)
-            at java.lang.Thread.sleep(Thread.java:985)
-            at testapp.MainActivity.SleepAMinute(MainActivity.java:18)
-            at testapp.MainActivity.access$100(MainActivity.java:12)
-            at testapp.MainActivity$LockerThread.run(MainActivity.java:36)
+```
+FATAL EXCEPTION: |ANR-WatchDog|
+    Process: anrwatchdog.github.com.testapp, PID: 26737
+    com.github.anrwatchdog.ANRError: Application Not Responding
+    Caused by: com.github.anrwatchdog.ANRError$_$_Thread: main (state = WAITING)
+        at testapp.MainActivity$1.run(MainActivity.java:46)
+        at android.os.Handler.handleCallback(Handler.java:739)
+        at android.os.Handler.dispatchMessage(Handler.java:95)
+        at android.os.Looper.loop(Looper.java:135)
+        at android.app.ActivityThread.main(ActivityThread.java:5221)
+    Caused by: com.github.anrwatchdog.ANRError$_$_Thread: APP: Locker (state = TIMED_WAITING)
+        at java.lang.Thread.sleep(Native Method)
+        at java.lang.Thread.sleep(Thread.java:1031)
+        at java.lang.Thread.sleep(Thread.java:985)
+        at testapp.MainActivity.SleepAMinute(MainActivity.java:18)
+        at testapp.MainActivity.access$100(MainActivity.java:12)
+        at testapp.MainActivity$LockerThread.run(MainActivity.java:36)
+```
 
 From this report, we can see that the stack traces of two threads. The first (the "main" thread) is stuck at `MainActivity.java:46` while the second thread (named "App: Locker") is locked in a Sleep at `MainActivity.java:18`.  
 From there, if we looked at those two lines, we would surely understand the cause of the dead lock!
@@ -148,77 +147,100 @@ Note that some crash reporting library (such as Crashlytics) report all thread s
 Configuration
 -------------
 
-
 ### Timeout (minimum hanging time for an ANR)
 
-* To set a different timeout (5000 millis is the default):
+To set a different timeout (5000 millis is the default):
 
-    ```java
-    if (BuildConfig.DEBUG == false) {
-        new ANRWatchDog(10000 /*timeout*/).start();
-    }
-    ```
+```java
+if (BuildConfig.DEBUG == false) {
+  new ANRWatchDog(10000 /*timeout*/).start();
+}
+```
 
 
 ### Debugger
 
-* By default, the watchdog will ignore ANRs if the debugger is attached. This is because it detects execution pauses and breakpoints as ANRs.
+By default, the watchdog will ignore ANRs if the debugger is attached or if the app is waiting for the debugger to attach. This is because it detects execution pauses and breakpoints as ANRs.
 To disable this and throw an `ANRError` even if the debugger is connected, you can add `setIgnoreDebugger(true)`:
 
-    ```java
-    new ANRWatchDog().setIgnoreDebugger(true).start();
-    ```
+```java
+new ANRWatchDog().setIgnoreDebugger(true).start();
+```
 
 
 ### On ANR callback
 
-* If you would prefer not to crash the application when an ANR is detected, you can enable a callback instead:
+If you would prefer not to crash the application when an ANR is detected, you can enable a callback instead:
 
-    ```java
-    new ANRWatchDog().setANRListener(new ANRWatchDog.ANRListener() {
-        @Override
-        public void onAppNotResponding(ANRError error) {
-            // Handle the error. For example, log it to HockeyApp:
-            ExceptionHandler.saveException(error, new CrashManager());
-        }
-    }).start();
-    ```
+```java
+new ANRWatchDog().setANRListener(new ANRWatchDog.ANRListener() {
+    @Override
+    public void onAppNotResponding(ANRError error) {
+        // Handle the error. For example, log it to HockeyApp:
+        ExceptionHandler.saveException(error, new CrashManager());
+    }
+}).start();
+```
 
-    **This is very important when delivering your app in production.** When in the hand of the final user, it's *probably better* not to crash after 5 seconds, but simply report the ANR to whatever reporting system you use. Maybe, after some more seconds, the app will "de-freeze".
+**This is very important when delivering your app in production.**
+When in the hand of the final user, it's *probably better* not to crash after 5 seconds, but simply report the ANR to whatever reporting system you use.
+Maybe, after some more seconds, the app will "de-freeze".
+
 
 ### Filtering reports
 
-* If you would like to have only your own threads to be reported in the ANRError, and not all threads (including system threads such as the `FinalizerDaemon` thread), you can set a prefix: only the threads whose name starts with this prefix will be reported.
+If you would like to have only your own threads to be reported in the ANRError, and not all threads (including system threads such as the `FinalizerDaemon` thread), you can set a prefix: only the threads whose name starts with this prefix will be reported.
 
-    ```java
-    new ANRWatchDog().setReportThreadNamePrefix("APP:").start();
-    ```
+```java
+new ANRWatchDog().setReportThreadNamePrefix("APP:").start();
+```
 
-    Then, when you start a thread, don't forget to set its name to something that starts with this prefix (if you want it to be reported):
+Then, when you start a thread, don't forget to set its name to something that starts with this prefix (if you want it to be reported):
 
-    ```java
-    public class MyAmazingThread extends Thread {
-        @Override
-        public void run() {
-            setName("APP: Amazing!");
-            /* ... do amazing things ... */
-        }
+```java
+public class MyAmazingThread extends Thread {
+    @Override
+    public void run() {
+        setName("APP: Amazing!");
+        /* ... do amazing things ... */
     }
-    ```
+}
+```
 
-* If you want to have only the main thread stack trace and not all the other threads (like in version 1.0), you can:
+If you want to have only the main thread stack trace and not all the other threads, you can:
 
-    ```java
-    new ANRWatchDog().setReportMainThreadOnly().start();
-    ```
+```java
+new ANRWatchDog().setReportMainThreadOnly().start();
+```
+
+
+### ANR Interceptor
+
+Sometimes, you want to know that the application has froze for a certain duration, but not report the ANR error just yet.
+You can define an interceptor that will be called before reporting an error.
+The role of the interceptor is to define whether or not, given the given freeze duration, an ANR error should be raised or postponed.
+
+```java
+new ANRWatchDog(2000).setANRInterceptor(new ANRWatchDog.ANRInterceptor() {
+    @Override
+    public long intercept(long duration) {
+        boolean ret = 5000 - duration;
+        if (ret > 0) {
+            Log.w(TAG, "Intercepted ANR that is too short (" + duration + " ms), postponing for " + ret + " ms.");
+        }
+        return ret;
+    }
+})
+```
+
+In this example, the ANRWatchDog starts with a timeout of 2000 ms, but the interceptor will postpone the error until at least 5000 ms of freeze has been reached.
 
 
 ### Watchdog thread
 
-* ANRWatchDog is a thread, so you can interrupt it at any time.
+ANRWatchDog is a thread, so you can interrupt it at any time.
 
-* If you are programming with Android's multi process capability (like starting an activity in a new process), remember that you will need an ANRWatchDog thread per process.
-
+If you are programming with Android's multi process capability (like starting an activity in a new process), remember that you will need an ANRWatchDog thread per process.
 
 
 Donate

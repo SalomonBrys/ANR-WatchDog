@@ -4,7 +4,6 @@ import android.os.Looper;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -16,7 +15,6 @@ import java.util.TreeMap;
  * of the exception. Each "Caused by" is the stack trace of a running thread. Note that the main
  * thread always comes first.
  */
-@SuppressWarnings({"Convert2Diamond", "UnusedDeclaration"})
 public class ANRError extends Error {
 
     private static class $ implements Serializable {
@@ -43,8 +41,15 @@ public class ANRError extends Error {
 
     private static final long serialVersionUID = 1L;
 
-    private ANRError($._Thread st) {
-        super("Application Not Responding", st);
+    /**
+     * The minimum duration, in ms, for which the main thread has been blocked. May be more.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public final long duration;
+
+    private ANRError($._Thread st, long duration) {
+        super("Application Not Responding for at least " + duration + " ms.", st);
+        this.duration = duration;
     }
 
     @Override
@@ -53,7 +58,7 @@ public class ANRError extends Error {
         return this;
     }
 
-    static ANRError New(String prefix, boolean logThreadsWithoutStackTrace) {
+    static ANRError New(long duration, String prefix, boolean logThreadsWithoutStackTrace) {
         final Thread mainThread = Looper.getMainLooper().getThread();
 
         final Map<Thread, StackTraceElement[]> stackTraces = new TreeMap<Thread, StackTraceElement[]>(new Comparator<Thread>() {
@@ -92,14 +97,14 @@ public class ANRError extends Error {
         for (Map.Entry<Thread, StackTraceElement[]> entry : stackTraces.entrySet())
             tst = new $(getThreadTitle(entry.getKey()), entry.getValue()).new _Thread(tst);
 
-        return new ANRError(tst);
+        return new ANRError(tst, duration);
     }
 
-    static ANRError NewMainOnly() {
+    static ANRError NewMainOnly(long duration) {
         final Thread mainThread = Looper.getMainLooper().getThread();
         final StackTraceElement[] mainStackTrace = mainThread.getStackTrace();
 
-        return new ANRError(new $(getThreadTitle(mainThread), mainStackTrace).new _Thread(null));
+        return new ANRError(new $(getThreadTitle(mainThread), mainStackTrace).new _Thread(null), duration);
     }
 
     private static String getThreadTitle(Thread thread) {

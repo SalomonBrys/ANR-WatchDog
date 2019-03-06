@@ -31,15 +31,30 @@ import android.util.Log;
 /**
  * A watchdog timer thread that detects when the UI thread has frozen.
  */
-@SuppressWarnings("UnusedDeclaration")
+@SuppressWarnings("UnusedReturnValue")
 public class ANRWatchDog extends Thread {
 
     public interface ANRListener {
-        public void onAppNotResponding(ANRError error);
+        /**
+         * Called when an ANR is detected.
+         *
+         * @param error The error describing the ANR.
+         */
+        void onAppNotResponding(ANRError error);
+    }
+
+    public interface ANRInterceptor {
+        /**
+         * Called when main thread has froze more time than defined by the timeout.
+         *
+         * @param duration The minimum time (in ms) the main thread has been frozen (may be more).
+         * @return 0 or negative if the ANR should be reported immediately. A positive number of ms to postpone the reporting.
+         */
+        long intercept(long duration);
     }
 
     public interface InterruptionListener {
-        public void onInterrupted(InterruptedException exception);
+        void onInterrupted(InterruptedException exception);
     }
 
     private static final int DEFAULT_ANR_TIMEOUT = 5000;
@@ -50,6 +65,12 @@ public class ANRWatchDog extends Thread {
         }
     };
 
+    private static final ANRInterceptor DEFAULT_ANR_INTERCEPTOR = new ANRInterceptor() {
+        @Override public long intercept(long duration) {
+            return 0;
+        }
+    };
+
     private static final InterruptionListener DEFAULT_INTERRUPTION_LISTENER = new InterruptionListener() {
         @Override public void onInterrupted(InterruptedException exception) {
             Log.w("ANRWatchdog", "Interrupted: " + exception.getMessage());
@@ -57,6 +78,7 @@ public class ANRWatchDog extends Thread {
     };
 
     private ANRListener _anrListener = DEFAULT_ANR_LISTENER;
+    private ANRInterceptor _anrInterceptor = DEFAULT_ANR_INTERCEPTOR;
     private InterruptionListener _interruptionListener = DEFAULT_INTERRUPTION_LISTENER;
 
     private final Handler _uiHandler = new Handler(Looper.getMainLooper());
@@ -66,11 +88,13 @@ public class ANRWatchDog extends Thread {
     private boolean _logThreadsWithoutStackTrace = false;
     private boolean _ignoreDebugger = false;
 
-    private volatile int _tick = 0;
+    private volatile long _tick = 0;
+    private volatile boolean _reported = false;
 
     private final Runnable _ticker = new Runnable() {
         @Override public void run() {
-            _tick = (_tick + 1) % Integer.MAX_VALUE;
+            _tick = 0;
+            _reported = false;
         }
     };
 
@@ -93,6 +117,13 @@ public class ANRWatchDog extends Thread {
     }
 
     /**
+     * @return The interval the WatchDog
+     */
+    public int getTimeoutInterval() {
+        return _timeoutInterval;
+    }
+
+    /**
      * Sets an interface for when an ANR is detected.
      * If not set, the default behavior is to throw an error and crash the application.
      *
@@ -102,9 +133,24 @@ public class ANRWatchDog extends Thread {
     public ANRWatchDog setANRListener(ANRListener listener) {
         if (listener == null) {
             _anrListener = DEFAULT_ANR_LISTENER;
-        }
-        else {
+        } else {
             _anrListener = listener;
+        }
+        return this;
+    }
+
+    /**
+     * Sets an interface to intercept ANRs before they are reported.
+     * If set, you can define if, given the current duration of the detected ANR and external context, it is necessary to report the ANR.
+     *
+     * @param interceptor The new interceptor or null
+     * @return itself for chaining.
+     */
+    public ANRWatchDog setANRInterceptor(ANRInterceptor interceptor) {
+        if (interceptor == null) {
+            _anrInterceptor = DEFAULT_ANR_INTERCEPTOR;
+        } else {
+            _anrInterceptor = interceptor;
         }
         return this;
     }
@@ -119,8 +165,7 @@ public class ANRWatchDog extends Thread {
     public ANRWatchDog setInterruptionListener(InterruptionListener listener) {
         if (listener == null) {
             _interruptionListener = DEFAULT_INTERRUPTION_LISTENER;
-        }
-        else {
+        } else {
             _interruptionListener = listener;
         }
         return this;
@@ -135,8 +180,9 @@ public class ANRWatchDog extends Thread {
      * @return itself for chaining.
      */
     public ANRWatchDog setReportThreadNamePrefix(String prefix) {
-        if (prefix == null)
+        if (prefix == null) {
             prefix = "";
+        }
         _namePrefix = prefix;
         return this;
     }
@@ -148,6 +194,16 @@ public class ANRWatchDog extends Thread {
      */
     public ANRWatchDog setReportMainThreadOnly() {
         _namePrefix = null;
+        return this;
+    }
+
+    /**
+     * Set that all threads will be reported (default behaviour).
+     *
+     * @return itself for chaining.
+     */
+    public ANRWatchDog setReportAllThreads() {
+        _namePrefix = "";
         return this;
     }
 
@@ -178,39 +234,49 @@ public class ANRWatchDog extends Thread {
         return this;
     }
 
+    @SuppressWarnings("NonAtomicOperationOnVolatileField")
     @Override
     public void run() {
         setName("|ANR-WatchDog|");
 
-        int lastTick;
-        int lastIgnored = -1;
+        long interval = _timeoutInterval;
         while (!isInterrupted()) {
-            lastTick = _tick;
-            _uiHandler.post(_ticker);
-            try {
-                Thread.sleep(_timeoutInterval);
+            boolean needPost = _tick == 0;
+            _tick += interval;
+            if (needPost) {
+                _uiHandler.post(_ticker);
             }
-            catch (InterruptedException e) {
+
+            try {
+                Thread.sleep(interval);
+            } catch (InterruptedException e) {
                 _interruptionListener.onInterrupted(e);
                 return ;
             }
 
             // If the main thread has not handled _ticker, it is blocked. ANR.
-            if (_tick == lastTick) {
-                if (!_ignoreDebugger && Debug.isDebuggerConnected() || Debug.waitingForDebugger()) {
-                    if (_tick != lastIgnored)
-                        Log.w("ANRWatchdog", "An ANR was detected but ignored because the debugger is connected (you can prevent this with setIgnoreDebugger(true))");
-                    lastIgnored = _tick;
+            if (_tick != 0 && !_reported) {
+                //noinspection ConstantConditions
+                if (!_ignoreDebugger && (Debug.isDebuggerConnected() || Debug.waitingForDebugger())) {
+                    Log.w("ANRWatchdog", "An ANR was detected but ignored because the debugger is connected (you can prevent this with setIgnoreDebugger(true))");
+                    _reported = true;
                     continue ;
                 }
 
-                ANRError error;
-                if (_namePrefix != null)
-                    error = ANRError.New(_namePrefix, _logThreadsWithoutStackTrace);
-                else
-                    error = ANRError.NewMainOnly();
+                interval = _anrInterceptor.intercept(_tick);
+                if (interval > 0) {
+                    continue;
+                }
+
+                final ANRError error;
+                if (_namePrefix != null) {
+                    error = ANRError.New(_tick, _namePrefix, _logThreadsWithoutStackTrace);
+                } else {
+                    error = ANRError.NewMainOnly(_tick);
+                }
                 _anrListener.onAppNotResponding(error);
-                return;
+                interval = _timeoutInterval;
+                _reported = true;
             }
         }
     }

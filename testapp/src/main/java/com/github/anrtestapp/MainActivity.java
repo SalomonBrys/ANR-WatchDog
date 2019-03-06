@@ -1,21 +1,21 @@
 package com.github.anrtestapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-
-import com.github.anrwatchdog.ANRWatchDog;
+import android.widget.Button;
 
 
 public class MainActivity extends Activity {
 
     private final Object _mutex = new Object();
 
-    private static void SleepAMinute() {
+    private static void Sleep() {
         try {
-            Thread.sleep(60 * 1000);
+            Thread.sleep(8 * 1000);
         }
         catch (InterruptedException e) {
             e.printStackTrace();
@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
             synchronized (_mutex) {
                 //noinspection InfiniteLoopStatement
                 while (true)
-                    SleepAMinute();
+                    Sleep();
             }
         }
     }
@@ -58,43 +58,80 @@ public class MainActivity extends Activity {
         }, 1000);
     }
 
+    private int mode = 0;
+    private boolean crash = true;
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final ANRWatchDog anrWatchDog = ((ANRWatchdogTestApplication) getApplication()).anrWatchDog;
+        final ANRWatchdogTestApplication application = (ANRWatchdogTestApplication) getApplication();
 
-
-        findViewById(R.id.threadSleepAll).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                SleepAMinute();
+        final Button minAnrDurationButton = (Button) findViewById(R.id.minAnrDuration);
+        minAnrDurationButton.setText(application.duration + " seconds");
+        minAnrDurationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                application.duration = application.duration % 6 + 2;
+                minAnrDurationButton.setText(application.duration + " seconds");
             }
         });
 
-        findViewById(R.id.threadSleepMain).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                anrWatchDog.setReportMainThreadOnly();
-                SleepAMinute();
+        final Button reportModeButton = (Button) findViewById(R.id.reportMode);
+        reportModeButton.setText("All threads");
+        reportModeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mode = (mode + 1) % 3;
+                switch (mode) {
+                    case 0:
+                        reportModeButton.setText("All threads");
+                        application.anrWatchDog.setReportAllThreads();
+                        break ;
+                    case 1:
+                        reportModeButton.setText("Main thread only");
+                        application.anrWatchDog.setReportMainThreadOnly();
+                        break ;
+                    case 2:
+                        reportModeButton.setText("Filtered");
+                        application.anrWatchDog.setReportThreadNamePrefix("APP:");
+                        break ;
+                }
             }
         });
 
-        findViewById(R.id.infiniteLoopMain).setOnClickListener(new View.OnClickListener() {
+        final Button behaviourButton = (Button) findViewById(R.id.behaviour);
+        behaviourButton.setText("Crash");
+        behaviourButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                crash = !crash;
+                if (crash) {
+                    behaviourButton.setText("Crash");
+                    application.anrWatchDog.setANRListener(null);
+                } else {
+                    behaviourButton.setText("Silent");
+                    application.anrWatchDog.setANRListener(application.silentListener);
+                }
+            }
+        });
+
+        findViewById(R.id.threadSleep).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                anrWatchDog.setReportMainThreadOnly();
+                Sleep();
+            }
+        });
+
+        findViewById(R.id.infiniteLoop).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
                 InfiniteLoop();
             }
         });
 
         findViewById(R.id.deadlock).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                _deadLock();
-            }
-        });
-
-        findViewById(R.id.filtered).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                anrWatchDog.setReportThreadNamePrefix("APP:");
                 _deadLock();
             }
         });

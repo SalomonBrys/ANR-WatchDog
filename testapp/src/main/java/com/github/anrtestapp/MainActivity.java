@@ -15,7 +15,7 @@ public class MainActivity extends Activity {
 
     private static void SleepAMinute() {
         try {
-            Thread.sleep(20 * 1000);
+            Thread.sleep(60 * 1000);
         }
         catch (InterruptedException e) {
             e.printStackTrace();

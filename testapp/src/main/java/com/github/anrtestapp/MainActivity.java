@@ -22,9 +22,17 @@ public class MainActivity extends Activity {
         }
     }
 
+    private static void InfiniteLoop() {
+        int i = 0;
+        //noinspection InfiniteLoopStatement
+        while (true) {
+            i++;
+        }
+    }
+
     public class LockerThread extends Thread {
 
-        public LockerThread() {
+        LockerThread() {
             setName("APP: Locker");
         }
 
@@ -58,16 +66,23 @@ public class MainActivity extends Activity {
         final ANRWatchDog anrWatchDog = ((ANRWatchdogTestApplication) getApplication()).anrWatchDog;
 
 
-        findViewById(R.id.simpleAll).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.threadSleepAll).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 SleepAMinute();
             }
         });
 
-        findViewById(R.id.simpleMain).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.threadSleepMain).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 anrWatchDog.setReportMainThreadOnly();
                 SleepAMinute();
+            }
+        });
+
+        findViewById(R.id.infiniteLoopMain).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                anrWatchDog.setReportMainThreadOnly();
+                InfiniteLoop();
             }
         });
 

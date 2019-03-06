@@ -61,7 +61,7 @@ As this throws an error, a crash handler can intercept it and handle it the way 
 Known working crash reporters include:
 
  * [ACRA](https://github.com/ACRA/acra)
- * [Crashlytics](https://get.fabric.io/crashlytics)
+ * [Crashlytics](https://get.fabric.io/crashlytics) ([Only with `setReportMainThreadOnly()`](https://github.com/SalomonBrys/ANR-WatchDog/issues/29))
  * [HockeyApp](https://hockeyapp.net/)
  * [Bugsnag](https://www.bugsnag.com/)
 

@@ -1,5 +1,5 @@
 
-apply plugin: 'java'
+apply plugin: 'com.android.library'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
@@ -8,14 +8,19 @@ version = "1.4.0"
 
 sourceCompatibility = 1.6
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
+task javadoc(type: Javadoc) {
+    failOnError false
+    source = android.sourceSets.main.java.sourceFiles
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier 'javadoc'
+    from javadoc.destinationDir
 }
 
 task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
-    from sourceSets.main.allSource
 }
 
 artifacts {
@@ -31,8 +36,16 @@ configurations {
     compile.extendsFrom provided
 }
 
+android {
+    compileSdkVersion 29
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 28
+    }
+}
+
 dependencies {
-    provided 'com.google.android:android:2.1.2'
+    implementation 'androidx.annotation:annotation:1.1.0'
 }
 
 uploadArchives {
@@ -41,11 +54,11 @@ uploadArchives {
             beforeDeployment { deployment -> signing.signPom(deployment) }
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                //authentication(userName: ossrhUsername, password: ossrhPassword)
             }
 
             snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                //authentication(userName: ossrhUsername, password: ossrhPassword)
             }
 
             pom.project {

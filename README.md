@@ -216,7 +216,7 @@ The role of the interceptor is to define whether or not, given the given freeze 
 new ANRWatchDog(2000).setANRInterceptor(new ANRWatchDog.ANRInterceptor() {
     @Override
     public long intercept(long duration) {
-        boolean ret = 5000 - duration;
+        long ret = 5000 - duration;
         if (ret > 0) {
             Log.w(TAG, "Intercepted ANR that is too short (" + duration + " ms), postponing for " + ret + " ms.");
         }

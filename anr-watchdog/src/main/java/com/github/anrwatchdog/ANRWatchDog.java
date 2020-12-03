@@ -28,6 +28,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * A watchdog timer thread that detects when the UI thread has frozen.
  */
@@ -40,7 +43,7 @@ public class ANRWatchDog extends Thread {
          *
          * @param error The error describing the ANR.
          */
-        void onAppNotResponding(ANRError error);
+        void onAppNotResponding(@NonNull ANRError error);
     }
 
     public interface ANRInterceptor {
@@ -54,13 +57,13 @@ public class ANRWatchDog extends Thread {
     }
 
     public interface InterruptionListener {
-        void onInterrupted(InterruptedException exception);
+        void onInterrupted(@NonNull InterruptedException exception);
     }
 
     private static final int DEFAULT_ANR_TIMEOUT = 5000;
 
     private static final ANRListener DEFAULT_ANR_LISTENER = new ANRListener() {
-        @Override public void onAppNotResponding(ANRError error) {
+        @Override public void onAppNotResponding(@NonNull ANRError error) {
             throw error;
         }
     };
@@ -72,7 +75,7 @@ public class ANRWatchDog extends Thread {
     };
 
     private static final InterruptionListener DEFAULT_INTERRUPTION_LISTENER = new InterruptionListener() {
-        @Override public void onInterrupted(InterruptedException exception) {
+        @Override public void onInterrupted(@NonNull InterruptedException exception) {
             Log.w("ANRWatchdog", "Interrupted: " + exception.getMessage());
         }
     };
@@ -130,7 +133,8 @@ public class ANRWatchDog extends Thread {
      * @param listener The new listener or null
      * @return itself for chaining.
      */
-    public ANRWatchDog setANRListener(ANRListener listener) {
+    @NonNull
+    public ANRWatchDog setANRListener(@Nullable ANRListener listener) {
         if (listener == null) {
             _anrListener = DEFAULT_ANR_LISTENER;
         } else {
@@ -146,7 +150,8 @@ public class ANRWatchDog extends Thread {
      * @param interceptor The new interceptor or null
      * @return itself for chaining.
      */
-    public ANRWatchDog setANRInterceptor(ANRInterceptor interceptor) {
+    @NonNull
+    public ANRWatchDog setANRInterceptor(@Nullable ANRInterceptor interceptor) {
         if (interceptor == null) {
             _anrInterceptor = DEFAULT_ANR_INTERCEPTOR;
         } else {
@@ -162,7 +167,8 @@ public class ANRWatchDog extends Thread {
      * @param listener The new listener or null.
      * @return itself for chaining.
      */
-    public ANRWatchDog setInterruptionListener(InterruptionListener listener) {
+    @NonNull
+    public ANRWatchDog setInterruptionListener(@Nullable InterruptionListener listener) {
         if (listener == null) {
             _interruptionListener = DEFAULT_INTERRUPTION_LISTENER;
         } else {
@@ -179,7 +185,8 @@ public class ANRWatchDog extends Thread {
      * @param prefix The thread name's prefix for a thread to be reported.
      * @return itself for chaining.
      */
-    public ANRWatchDog setReportThreadNamePrefix(String prefix) {
+    @NonNull
+    public ANRWatchDog setReportThreadNamePrefix(@Nullable String prefix) {
         if (prefix == null) {
             prefix = "";
         }
@@ -192,6 +199,7 @@ public class ANRWatchDog extends Thread {
      *
      * @return itself for chaining.
      */
+    @NonNull
     public ANRWatchDog setReportMainThreadOnly() {
         _namePrefix = null;
         return this;
@@ -202,6 +210,7 @@ public class ANRWatchDog extends Thread {
      *
      * @return itself for chaining.
      */
+    @NonNull
     public ANRWatchDog setReportAllThreads() {
         _namePrefix = "";
         return this;
@@ -215,6 +224,7 @@ public class ANRWatchDog extends Thread {
      * @param logThreadsWithoutStackTrace Whether or not all running threads should be reported
      * @return itself for chaining.
      */
+    @NonNull
     public ANRWatchDog setLogThreadsWithoutStackTrace(boolean logThreadsWithoutStackTrace) {
         _logThreadsWithoutStackTrace = logThreadsWithoutStackTrace;
         return this;
@@ -229,6 +239,7 @@ public class ANRWatchDog extends Thread {
      * @param ignoreDebugger Whether to ignore the debugger.
      * @return itself for chaining.
      */
+    @NonNull
     public ANRWatchDog setIgnoreDebugger(boolean ignoreDebugger) {
         _ignoreDebugger = ignoreDebugger;
         return this;

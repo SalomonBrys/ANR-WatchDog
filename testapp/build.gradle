@@ -14,5 +14,6 @@ android {
 
 dependencies {
     implementation project(':anr-watchdog')
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.annotation:annotation:1.1.0'
 }

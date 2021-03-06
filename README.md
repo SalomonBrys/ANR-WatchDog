@@ -87,7 +87,7 @@ Install
 1.  In the `app/build.gradle` file, add:
 
     ```
-    implementation 'com.github.anrwatchdog:anrwatchdog:1.4.0'
+    compile 'com.github.anrwatchdog:anrwatchdog:1.4.0'
     ```
 
 2.  In your application class, in `onCreate`, add:

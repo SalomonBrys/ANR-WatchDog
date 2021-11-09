@@ -10,6 +10,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
+import androidx.annotation.NonNull;
+
 public class ANRWatchdogTestApplication extends Application {
 
     ANRWatchDog anrWatchDog = new ANRWatchDog(2000);
@@ -18,7 +20,7 @@ public class ANRWatchdogTestApplication extends Application {
 
     final ANRWatchDog.ANRListener silentListener = new ANRWatchDog.ANRListener() {
         @Override
-        public void onAppNotResponding(ANRError error) {
+        public void onAppNotResponding(@NonNull ANRError error) {
             Log.e("ANR-Watchdog-Demo", "", error);
         }
     };
@@ -30,7 +32,7 @@ public class ANRWatchdogTestApplication extends Application {
         anrWatchDog
                 .setANRListener(new ANRWatchDog.ANRListener() {
                     @Override
-                    public void onAppNotResponding(ANRError error) {
+                    public void onAppNotResponding(@NonNull ANRError error) {
                         Log.e("ANR-Watchdog-Demo", "Detected Application Not Responding!");
 
                         // Some tools like ACRA are serializing the exception, so we must make sure the exception serializes correctly

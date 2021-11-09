@@ -7,6 +7,9 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Error thrown by {@link com.github.anrwatchdog.ANRWatchDog} when an ANR is detected.
  * Contains the stack trace of the frozen UI thread.
@@ -27,6 +30,7 @@ public class ANRError extends Error {
             }
 
             @Override
+            @NonNull
             public Throwable fillInStackTrace() {
                 setStackTrace(_stackTrace);
                 return this;
@@ -53,12 +57,14 @@ public class ANRError extends Error {
     }
 
     @Override
+    @NonNull
     public Throwable fillInStackTrace() {
         setStackTrace(new StackTraceElement[] {});
         return this;
     }
 
-    static ANRError New(long duration, String prefix, boolean logThreadsWithoutStackTrace) {
+    @NonNull
+    static ANRError New(long duration, @Nullable String prefix, boolean logThreadsWithoutStackTrace) {
         final Thread mainThread = Looper.getMainLooper().getThread();
 
         final Map<Thread, StackTraceElement[]> stackTraces = new TreeMap<Thread, StackTraceElement[]>(new Comparator<Thread>() {
@@ -100,6 +106,7 @@ public class ANRError extends Error {
         return new ANRError(tst, duration);
     }
 
+    @NonNull
     static ANRError NewMainOnly(long duration) {
         final Thread mainThread = Looper.getMainLooper().getThread();
         final StackTraceElement[] mainStackTrace = mainThread.getStackTrace();

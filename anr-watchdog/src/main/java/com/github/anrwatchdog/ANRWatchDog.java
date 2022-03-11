@@ -255,7 +255,7 @@ public class ANRWatchDog extends Thread {
             boolean needPost = _tick == 0;
             _tick += interval;
             if (needPost) {
-                _uiHandler.post(_ticker);
+                _uiHandler.postAtFrontOfQueue(_ticker);
             }
 
             try {
